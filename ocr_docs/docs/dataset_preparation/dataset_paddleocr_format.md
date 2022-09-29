@@ -1,4 +1,4 @@
-# Paddleocr engine format
+# Detection Paddleocr format
 
 
 ## 1. Text detection
