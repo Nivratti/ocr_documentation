@@ -1,8 +1,8 @@
 # Recognition Paddleocr
 
-[Colab demo notebook link](https://colab.research.google.com/drive/1mx_IGNlIdaNnlTpde3GJGh-eBdyxgILl?usp=sharing)
+[Colab demo notebook link](https://colab.research.google.com/drive/1mx_IGNlIdaNnlTpde3GJGh-eBdyxgILl?usp=sharing){:target="_blank"}
 
-You can clone demo notebook and check training process. For more details you can refer below doc.
+In case if current models not giving proper result on some ID card, then you need to collect atleast 100 images of that ID, annotate them and fine-tune models on that to get best result for that ID card type. You can clone demo notebook and check fine-tuning process. For more details you can refer below doc.
 
 # Text Recognition training
 

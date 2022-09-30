@@ -16,9 +16,15 @@ nav:
   - dataset_preparation:
     - dataset_preparation/annotation-tool.md
     - dataset_preparation/paddleocr_dataset_format.md
+    - dataset_preparation/easyocr_dataset_format.md
   - training:
     - training/recognition_paddleocr.md
+    - training/recognition_easyocr.md
 
+  - deploy_updated_ocr_models:
+    - deploy_updated_ocr_models/detection.md
+    - deploy_updated_ocr_models/recognition.md
+    
   - structured_data.md
 
 markdown_extensions:
