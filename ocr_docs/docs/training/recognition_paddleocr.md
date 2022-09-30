@@ -99,7 +99,7 @@ PaddleOCR has built-in dictionaries, which can be used on demand.
 
 
 The current multi-language model is still in the demo stage and will continue to optimize the model and add languages. **You are very welcome to provide us with dictionaries and fonts in other languages**,
-If you like, you can submit the dictionary file to [dict](../../ppocr/utils/dict) and we will thank you in the Repo.
+If you like, you can submit the dictionary file to [dict](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/dict) and we will thank you in the Repo.
 
 
 To customize the dict file, please modify the `character_dict_path` field in `configs/rec/rec_icdar15_train.yml` .
@@ -120,7 +120,7 @@ PaddleOCR provides a variety of data augmentation methods. All the augmentation 
 
 The default perturbation methods are: cvtColor, blur, jitter, Gasuss noise, random crop, perspective, color reverse, TIA augmentation.
 
-Each disturbance method is selected with a 40% probability during the training process. For specific code implementation, please refer to: [rec_img_aug.py](../../ppocr/data/imaug/rec_img_aug.py)
+Each disturbance method is selected with a 40% probability during the training process. For specific code implementation, please refer to: [rec_img_aug.py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/data/imaug/rec_img_aug.py)
 
 <a name="TRAINING"></a>
 ## 2.Training
@@ -163,7 +163,7 @@ If the evaluation set is large, the test will be time-consuming. It is recommend
 
 
 For training Chinese data, it is recommended to use
-[ch_PP-OCRv3_rec_distillation.yml](../../configs/rec/PP-OCRv3/ch_PP-OCRv3_rec_distillation.yml). If you want to try the result of other algorithms on the Chinese data set, please refer to the following instructions to modify the configuration file:
+[ch_PP-OCRv3_rec_distillation.yml](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/configs/rec/PP-OCRv3/ch_PP-OCRv3_rec_distillation.yml). If you want to try the result of other algorithms on the Chinese data set, please refer to the following instructions to modify the configuration file:
 
 Take `ch_PP-OCRv3_rec_distillation.yml` as an example:
 ```
@@ -243,7 +243,7 @@ python3 tools/train.py -c configs/rec/rec_icdar15_train.yml -o Global.checkpoint
 <a name="23-training-with-new-backbone"></a>
 ### 2.3 Training with New Backbone
 
-The network part completes the construction of the network, and PaddleOCR divides the network into four parts, which are under [ppocr/modeling](../../ppocr/modeling). The data entering the network will pass through these four parts in sequence(transforms->backbones->
+The network part completes the construction of the network, and PaddleOCR divides the network into four parts, which are under [ppocr/modeling](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6//modeling). The data entering the network will pass through these four parts in sequence(transforms->backbones->
 necks->heads).
 
 ```bash
@@ -258,7 +258,7 @@ If the Backbone to be replaced has a corresponding implementation in PaddleOCR, 
 
 However, if you want to use a new Backbone, an example of replacing the backbones is as follows:
 
-1. Create a new file under the [ppocr/modeling/backbones](../../ppocr/modeling/backbones) folder, such as my_backbone.py.
+1. Create a new file under the [ppocr/modeling/backbones](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/modeling/backbones) folder, such as my_backbone.py.
 2. Add code in the my_backbone.py file, the sample code is as follows:
 
 ```python
@@ -279,7 +279,7 @@ class MyBackbone(nn.Layer):
         return y
 ```
 
-3. Import the added module in the [ppocr/modeling/backbones/\__init\__.py](../../ppocr/modeling/backbones/__init__.py) file.
+3. Import the added module in the [ppocr/modeling/backbones/\__init\__.py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/modeling/backbones/__init__.py) file.
 
 After adding the four-part modules of the network, you only need to configure them in the configuration file to use, such as:
 
@@ -289,7 +289,7 @@ After adding the four-part modules of the network, you only need to configure th
     args1: args1
 ```
 
-**NOTE**: More details about replace Backbone and other mudule can be found in [doc](add_new_algorithm_en.md).
+**NOTE**: More details about replace Backbone and other mudule can be found in [doc](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc_en/add_new_algorithm_en.md).
 
 <a name="24-amp-training"></a>
 ### 2.4 Mixed Precision Training
@@ -312,12 +312,12 @@ python3 -m paddle.distributed.launch --ips="xx.xx.xx.xx,xx.xx.xx.xx" --gpus '0,1
      -o Global.pretrained_model=./pretrain_models/rec_mv3_none_bilstm_ctc_v2.0_train
 ```
 
-**Note:** (1) When using multi-machine and multi-gpu training, you need to replace the ips value in the above command with the address of your machine, and the machines need to be able to ping each other. (2) Training needs to be launched separately on multiple machines. The command to view the ip address of the machine is `ifconfig`. (3) For more details about the distributed training speedup ratio, please refer to [Distributed Training Tutorial](./distributed_training_en.md).
+**Note:** (1) When using multi-machine and multi-gpu training, you need to replace the ips value in the above command with the address of your machine, and the machines need to be able to ping each other. (2) Training needs to be launched separately on multiple machines. The command to view the ip address of the machine is `ifconfig`. (3) For more details about the distributed training speedup ratio, please refer to [Distributed Training Tutorial](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc_en/distributed_training_en.md).
 
 <a name="kd"></a>
 ### 2.6 Training with Knowledge Distillation
 
-Knowledge distillation is supported in PaddleOCR for text recognition training process. For more details, please refer to [doc](./knowledge_distillation_en.md).
+Knowledge distillation is supported in PaddleOCR for text recognition training process. For more details, please refer to [doc](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc_en/knowledge_distillation_en.md).
 
 <a name="Multi_language"></a>
 ### 2.7 Multi-language Training
