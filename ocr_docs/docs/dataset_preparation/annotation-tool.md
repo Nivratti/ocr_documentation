@@ -1,5 +1,5 @@
 
-For data labeling purpose we have used PPOCRLabel tool (https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6/PPOCRLabel). Tool also included in code part. You can either view video tutorial or you can refer doc link for exploring labeling process.
+For data labeling purpose we have used [PPOCRLabel tool](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6/PPOCRLabel). Tool also included in code part. You can either view video tutorial or you can refer doc link for exploring labeling process.
 
 [Video tutorial link](https://youtu.be/XRaY6yNjuvs){:target="_blank" rel="noopener"}
 
