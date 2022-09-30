@@ -1,4 +1,4 @@
-# Detection Paddleocr format
+# Paddleocr format
 
 
 ## 1. Text detection

@@ -15,8 +15,10 @@ nav:
   - installation.md
   - dataset_preparation:
     - dataset_preparation/annotation-tool.md
-    - dataset_preparation/dataset_paddleocr_format.md
-  - training.md
+    - dataset_preparation/paddleocr_dataset_format.md
+  - training:
+    - training/recognition_paddleocr.md
+
   - structured_data.md
 
 markdown_extensions:
