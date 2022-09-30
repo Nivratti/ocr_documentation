@@ -302,8 +302,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../dataset_paddleocr_format/" class="md-nav__link">
-        Detection Paddleocr format
+      <a href="../paddleocr_dataset_format/" class="md-nav__link">
+        Paddleocr format
       </a>
     </li>
   
@@ -323,10 +323,43 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          training
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="training" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          training
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../training/" class="md-nav__link">
-        Training
+      <a href="../../training/recognition_paddleocr/" class="md-nav__link">
+        Recognition Paddleocr
       </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -394,12 +427,220 @@
 
   <h1>Annotation tool</h1>
 
-<p>For data labeling purpose we have used PPOCRLabel tool (https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6/PPOCRLabel). Tool also included in code part. You can either view video tutorial or you can refer doc link for exploring labeling process.</p>
+<p>For data labeling purpose we have used <a href="https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6/PPOCRLabel">PPOCRLabel tool</a>. Tool also included in code part. You can either view video tutorial or you can refer doc link for exploring labeling process.</p>
 <p><a href="https://youtu.be/XRaY6yNjuvs" rel="noopener" target="_blank">Video tutorial link</a></p>
 <h2 id="splitting-dataset">Splitting dataset:<a class="headerlink" href="#splitting-dataset" title="Permanent link">&para;</a></h2>
 <p>Once you are ready with annotations you can export label and recognition result, that we need to split into train, validation and test set for ocr training or fine-tuning.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="err">$</span> <span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">stop</span> <span class="n">liveness_api</span>
+<p>You can use modified <code>gen_ocr_train_val_test.py</code> file to split dataset,that will contains relative filepath in label file, so we can use that file for training on new system easily. <a href="../../assets/dataset_preparation/gen_ocr_train_val_test.py" rel="noopener" target="_blank" title="download">download code file</a></p>
+<div class="highlight"><span class="filename">gen_ocr_train_val_test.py</span><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Usage: </span>
+
+<span class="sd">python gen_ocr_train_val_test.py --trainValTestRatio &quot;8:1:1&quot; --datasetRootPath &quot;/Philippines-ids/driving-license/&quot; --detRootPath &quot;../train_data/det_phl_driving_license&quot; --recRootPath &quot;../train_data/rec_phl_driving_license&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># coding:utf8</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="c1"># Delete the divided training set, validation set, and test set folder and recreate an empty folder</span>
+<span class="k">def</span> <span class="nf">isCreateOrDeleteFolder</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+    <span class="n">flagPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">flagPath</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">flagPath</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">flagPath</span><span class="p">)</span>
+    <span class="n">flagAbsPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">flagPath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flagAbsPath</span>
+
+<span class="k">def</span> <span class="nf">get_relative_path</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get relative label path from absolute</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        imageCopyPath (_type_): _description_</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        _type_: _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ## Get dynamic length -- but if absolute dir path passed for saving labels, it will give more length and it will not give desired result</span>
+    <span class="c1"># len_rel_folders = len(Path(args.recRootPath.strip(&#39;.&#39;).strip(&#39;/&#39;)).parents)</span>
+
+    <span class="c1">## We need only last 2 folders and filename of abs path</span>
+    <span class="n">len_rel_folders</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">base_parent_folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="n">len_rel_folders</span><span class="p">]</span>
+    <span class="n">relative_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">base_parent_folder</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">relative_path</span>
+
+<span class="k">def</span> <span class="nf">splitTrainVal</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">absTrainRootPath</span><span class="p">,</span> <span class="n">absValRootPath</span><span class="p">,</span> <span class="n">absTestRootPath</span><span class="p">,</span> <span class="n">trainTxt</span><span class="p">,</span> <span class="n">valTxt</span><span class="p">,</span> <span class="n">testTxt</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Divide the training set, validation set, and test set according to the specified ratio</span>
+    <span class="n">dataAbsPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s2">&quot;det&quot;</span><span class="p">:</span>
+        <span class="n">labelFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataAbsPath</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">detLabelFileName</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s2">&quot;rec&quot;</span><span class="p">:</span>
+        <span class="n">labelFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataAbsPath</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">recLabelFileName</span><span class="p">)</span>
+
+    <span class="n">labelFileRead</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">labelFilePath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">labelFileContent</span> <span class="o">=</span> <span class="n">labelFileRead</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">labelFileContent</span><span class="p">)</span>
+    <span class="n">labelRecordLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labelFileContent</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">labelRecordInfo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labelFileContent</span><span class="p">):</span>
+        <span class="n">imageRelativePath</span> <span class="o">=</span> <span class="n">labelRecordInfo</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">imageLabel</span> <span class="o">=</span> <span class="n">labelRecordInfo</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">imageName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">imageRelativePath</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s2">&quot;det&quot;</span><span class="p">:</span>
+            <span class="n">imagePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataAbsPath</span><span class="p">,</span> <span class="n">imageName</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s2">&quot;rec&quot;</span><span class="p">:</span>
+            <span class="n">imagePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataAbsPath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recImageDirName</span><span class="p">,</span> <span class="n">imageName</span><span class="p">))</span>
+
+        <span class="c1"># Divide the training set, validation set, and test set according to the preset ratio</span>
+        <span class="n">trainValTestRatio</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">trainValTestRatio</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">trainRatio</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">trainValTestRatio</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">10</span>
+        <span class="n">valRatio</span> <span class="o">=</span> <span class="n">trainRatio</span> <span class="o">+</span> <span class="nb">eval</span><span class="p">(</span><span class="n">trainValTestRatio</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">10</span>
+        <span class="n">curRatio</span> <span class="o">=</span> <span class="n">index</span> <span class="o">/</span> <span class="n">labelRecordLen</span>
+
+        <span class="c1"># import ipdb;ipdb.set_trace()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">curRatio</span> <span class="o">&lt;</span> <span class="n">trainRatio</span><span class="p">:</span>
+                <span class="n">imageCopyPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">absTrainRootPath</span><span class="p">,</span> <span class="n">imageName</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">imagePath</span><span class="p">,</span> <span class="n">imageCopyPath</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">relative_path</span><span class="p">:</span>
+                    <span class="n">relative_path</span> <span class="o">=</span> <span class="n">get_relative_path</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">)</span>
+                    <span class="n">trainTxt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">relative_path</span><span class="p">,</span> <span class="n">imageLabel</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">trainTxt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">,</span> <span class="n">imageLabel</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">curRatio</span> <span class="o">&gt;=</span> <span class="n">trainRatio</span> <span class="ow">and</span> <span class="n">curRatio</span> <span class="o">&lt;</span> <span class="n">valRatio</span><span class="p">:</span>
+                <span class="n">imageCopyPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">absValRootPath</span><span class="p">,</span> <span class="n">imageName</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">imagePath</span><span class="p">,</span> <span class="n">imageCopyPath</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">relative_path</span><span class="p">:</span>
+                    <span class="n">relative_path</span> <span class="o">=</span> <span class="n">get_relative_path</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">)</span>
+                    <span class="n">valTxt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">relative_path</span><span class="p">,</span> <span class="n">imageLabel</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">valTxt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">,</span> <span class="n">imageLabel</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">imageCopyPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">absTestRootPath</span><span class="p">,</span> <span class="n">imageName</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">imagePath</span><span class="p">,</span> <span class="n">imageCopyPath</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">relative_path</span><span class="p">:</span>
+                    <span class="n">relative_path</span> <span class="o">=</span> <span class="n">get_relative_path</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">)</span>
+                    <span class="n">testTxt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">relative_path</span><span class="p">,</span> <span class="n">imageLabel</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">testTxt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">imageCopyPath</span><span class="p">,</span> <span class="n">imageLabel</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># delete existing files</span>
+<span class="k">def</span> <span class="nf">removeFile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">genDetRecTrainVal</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">detAbsTrainRootPath</span> <span class="o">=</span> <span class="n">isCreateOrDeleteFolder</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">)</span>
+    <span class="n">detAbsValRootPath</span> <span class="o">=</span> <span class="n">isCreateOrDeleteFolder</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">)</span>
+    <span class="n">detAbsTestRootPath</span> <span class="o">=</span> <span class="n">isCreateOrDeleteFolder</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
+    <span class="n">recAbsTrainRootPath</span> <span class="o">=</span> <span class="n">isCreateOrDeleteFolder</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">)</span>
+    <span class="n">recAbsValRootPath</span> <span class="o">=</span> <span class="n">isCreateOrDeleteFolder</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">)</span>
+    <span class="n">recAbsTestRootPath</span> <span class="o">=</span> <span class="n">isCreateOrDeleteFolder</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
+
+    <span class="n">removeFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;train.txt&quot;</span><span class="p">))</span>
+    <span class="n">removeFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;val.txt&quot;</span><span class="p">))</span>
+    <span class="n">removeFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;test.txt&quot;</span><span class="p">))</span>
+    <span class="n">removeFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;train.txt&quot;</span><span class="p">))</span>
+    <span class="n">removeFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;val.txt&quot;</span><span class="p">))</span>
+    <span class="n">removeFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;test.txt&quot;</span><span class="p">))</span>
+
+    <span class="n">detTrainTxt</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;train.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">detValTxt</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;val.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">detTestTxt</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">detRootPath</span><span class="p">,</span> <span class="s2">&quot;test.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">recTrainTxt</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;train.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">recValTxt</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;val.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">recTestTxt</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recRootPath</span><span class="p">,</span> <span class="s2">&quot;test.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+
+    <span class="n">splitTrainVal</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">datasetRootPath</span><span class="p">,</span> <span class="n">detAbsTrainRootPath</span><span class="p">,</span> <span class="n">detAbsValRootPath</span><span class="p">,</span> <span class="n">detAbsTestRootPath</span><span class="p">,</span> <span class="n">detTrainTxt</span><span class="p">,</span> <span class="n">detValTxt</span><span class="p">,</span>
+                  <span class="n">detTestTxt</span><span class="p">,</span> <span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">datasetRootPath</span><span class="p">):</span>
+        <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;crop_img&#39;</span><span class="p">:</span>
+                <span class="n">splitTrainVal</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">recAbsTrainRootPath</span><span class="p">,</span> <span class="n">recAbsValRootPath</span><span class="p">,</span> <span class="n">recAbsTestRootPath</span><span class="p">,</span> <span class="n">recTrainTxt</span><span class="p">,</span> <span class="n">recValTxt</span><span class="p">,</span>
+                              <span class="n">recTestTxt</span><span class="p">,</span> <span class="s2">&quot;rec&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="k">break</span>
+
+<span class="k">def</span> <span class="nf">str2bool</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="s1">&#39;false&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="s1">&#39;Boolean value expected.&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Function description: separate the training set, validation set, and test set for detection and recognition</span>
+    <span class="c1"># Description: You can adjust the parameters according to your own path and needs. Image data is often labeled in batches by multiple people. Each batch of image data is placed in a folder and labeled with PPOCRLabel.</span>
+    <span class="c1"># In this way, there will be multiple labeled image folders to aggregate and divide the training set, validation set, and test set requirements</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--trainValTestRatio&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;7:2:1&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ratio of trainset:valset:testset&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--datasetRootPath&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;../train_data/&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to the dataset marked by ppocrlabel, E.g, dataset folder named 1,2,3...&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--detRootPath&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;../train_data/det&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the path where the divided detection dataset is placed&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--recRootPath&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;../train_data/rec&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the path where the divided recognition dataset is placed&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--detLabelFileName&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Label.txt&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the name of the detection annotation file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--recLabelFileName&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;rec_gt.txt&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the name of the recognition annotation file&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--recImageDirName&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;crop_img&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the name of the folder where the cropped recognition dataset is located&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--relative_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span> 
+        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Whether to write relative paths in label file-name&quot;</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">genDetRecTrainVal</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </code></pre></div>
+<p>After splitting annotated dataset it will create training, validation and testing folder with associated labels.</p>
+<p><a href="../../assets/dataset_preparation/folder-label-file-structure-after-splitting-annotated-dataset.png"> <img alt="" src="../../assets/dataset_preparation/folder-label-file-structure-after-splitting-annotated-dataset.png" /> </a></p>
 
 
 
@@ -436,13 +677,13 @@
       
       
         
-        <a href="../dataset_paddleocr_format/" class="md-footer__link md-footer__link--next" aria-label="Next: Detection Paddleocr format" rel="next">
+        <a href="../paddleocr_dataset_format/" class="md-footer__link md-footer__link--next" aria-label="Next: Paddleocr format" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Detection Paddleocr format
+              Paddleocr format
             </div>
           </div>
           <div class="md-footer__button md-icon">
