@@ -242,11 +242,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#a-server-requirements" class="md-nav__link">
-    A) Server requirements:
+  <a href="#a-server-requirements-for-gpu-version-recommended" class="md-nav__link">
+    A) Server requirements for GPU version (Recommended):
   </a>
   
-    <nav class="md-nav" aria-label="A) Server requirements:">
+    <nav class="md-nav" aria-label="A) Server requirements for GPU version (Recommended):">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -285,6 +285,33 @@
         <li class="md-nav__item">
   <a href="#installation_1" class="md-nav__link">
     Installation:
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation:">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-docker" class="md-nav__link">
+    1. Docker:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-docker-compose" class="md-nav__link">
+    2. Docker compose:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-cpu-only-inference-gpu-will-be-much-faster-than-this" class="md-nav__link">
+    B) CPU only Inference (GPU will be much faster than this):
   </a>
   
 </li>
@@ -469,20 +496,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../deploy_updated_ocr_models/detection/" class="md-nav__link">
-        Detection models
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../deploy_updated_ocr_models/recognition/" class="md-nav__link">
         Recognition models
       </a>
@@ -539,11 +552,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#a-server-requirements" class="md-nav__link">
-    A) Server requirements:
+  <a href="#a-server-requirements-for-gpu-version-recommended" class="md-nav__link">
+    A) Server requirements for GPU version (Recommended):
   </a>
   
-    <nav class="md-nav" aria-label="A) Server requirements:">
+    <nav class="md-nav" aria-label="A) Server requirements for GPU version (Recommended):">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -584,6 +597,33 @@
     Installation:
   </a>
   
+    <nav class="md-nav" aria-label="Installation:">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-docker" class="md-nav__link">
+    1. Docker:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-docker-compose" class="md-nav__link">
+    2. Docker compose:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-cpu-only-inference-gpu-will-be-much-faster-than-this" class="md-nav__link">
+    B) CPU only Inference (GPU will be much faster than this):
+  </a>
+  
 </li>
       
     </ul>
@@ -602,7 +642,7 @@
 
 
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
-<h2 id="a-server-requirements">A) Server requirements:<a class="headerlink" href="#a-server-requirements" title="Permanent link">&para;</a></h2>
+<h2 id="a-server-requirements-for-gpu-version-recommended">A) Server requirements for GPU version (Recommended):<a class="headerlink" href="#a-server-requirements-for-gpu-version-recommended" title="Permanent link">&para;</a></h2>
 <h3 id="hardware">Hardware:<a class="headerlink" href="#hardware" title="Permanent link">&para;</a></h3>
 <ol>
 <li>CPU cores(4 plus)</li>
@@ -621,19 +661,23 @@
 <h3 id="sample-result-after-running-nvcc-version-command">Sample result after running <code>nvcc --version</code> command:<a class="headerlink" href="#sample-result-after-running-nvcc-version-command" title="Permanent link">&para;</a></h3>
 <p><img alt="nvidia-smi command" src="../assets/installation/sample-cuda-compiler-version-command-result.png.png" /></p>
 <h2 id="installation_1">Installation:<a class="headerlink" href="#installation_1" title="Permanent link">&para;</a></h2>
-<ol>
-<li>
-<p>From pip package:
-   Unzip OCR zipped file, goto main folder, and run <code>pip install -r requirements.txt</code></p>
-</li>
-<li>
-<p>Docker:</p>
+<h3 id="1-docker">1. Docker:<a class="headerlink" href="#1-docker" title="Permanent link">&para;</a></h3>
 <p>Command to build:</p>
-<p><code>sudo docker build . -t ocr:latest</code></p>
+<p><code>sudo docker build . -t ocr_english_optimized:latest</code></p>
 <p>Run : </p>
-<p><code>sudo docker run -p 5000:5000 --gpus all --init -it ocr</code></p>
-</li>
-</ol>
+<p><code>sudo docker run -p 5000:5000 --gpus all --init -it  ocr_english_optimized</code></p>
+<h3 id="2-docker-compose">2. Docker compose:<a class="headerlink" href="#2-docker-compose" title="Permanent link">&para;</a></h3>
+<p>You can use it for <strong>development purpose</strong> also, as per written config code, models volume will be mounted and no need to rebuild docker compose after changing code. You can modify code and execute modified python file.</p>
+<p>Command to build:</p>
+<p><code>sudo docker compose build .</code></p>
+<p>Run : </p>
+<p><code>sudo docker compose run -p 5000:5000 ocr_docker_compose  bash</code></p>
+<h2 id="b-cpu-only-inference-gpu-will-be-much-faster-than-this">B) CPU only Inference (GPU will be much faster than this):<a class="headerlink" href="#b-cpu-only-inference-gpu-will-be-much-faster-than-this" title="Permanent link">&para;</a></h2>
+<p>Considering development system scenario, as always GPU not available, so to test and modify solution in CPU only system you can build CPU version of docker.</p>
+<p>Command to build:</p>
+<p><code>sudo docker build -f "Dockerfile-CPU" . -t ocr_english_optimized_cpu:latest</code></p>
+<p>Run : </p>
+<p><code>sudo docker run -p 5000:5000 --init -it  ocr_english_optimized_cpu</code></p>
 
 
 
