@@ -22,7 +22,6 @@ nav:
     - training/recognition_easyocr.md
 
   - deploy_updated_ocr_models:
-    - deploy_updated_ocr_models/detection.md
     - deploy_updated_ocr_models/recognition.md
     
   - structured_data.md

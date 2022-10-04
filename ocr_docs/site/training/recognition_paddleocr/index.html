@@ -271,6 +271,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset_preparation/easyocr_dataset_format/" class="md-nav__link">
+        EasyOCR format
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -331,6 +345,82 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../recognition_easyocr/" class="md-nav__link">
+        Recognition EasyOCR
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          deploy_updated_ocr_models
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="deploy_updated_ocr_models" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          deploy_updated_ocr_models
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deploy_updated_ocr_models/detection/" class="md-nav__link">
+        Detection models
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deploy_updated_ocr_models/recognition/" class="md-nav__link">
+        Recognition models
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -386,8 +476,8 @@
 
 
 <h1 id="recognition-paddleocr">Recognition Paddleocr<a class="headerlink" href="#recognition-paddleocr" title="Permanent link">&para;</a></h1>
-<p><a href="https://colab.research.google.com/drive/1mx_IGNlIdaNnlTpde3GJGh-eBdyxgILl?usp=sharing">Colab demo notebook link</a></p>
-<p>You can clone demo notebook and check training process. For more details you can refer below doc.</p>
+<p><a href="https://colab.research.google.com/drive/1mx_IGNlIdaNnlTpde3GJGh-eBdyxgILl?usp=sharing" target="_blank">Colab demo notebook link</a></p>
+<p>In case if current models not giving proper result on some ID card, then you need to collect atleast 100 images of that ID, annotate them and fine-tune models on that to get best result for that ID card type. You can clone demo notebook and check fine-tuning process. For more details you can refer below doc.</p>
 <h1 id="text-recognition-training">Text Recognition training<a class="headerlink" href="#text-recognition-training" title="Permanent link">&para;</a></h1>
 <ul>
 <li><a href="#DATA_PREPARATION">1. Data Preparation</a></li>
@@ -455,7 +545,7 @@ n
 <p><code>ppocr/utils/dict/german_dict.txt</code> is a German dictionary with 131 characters</p>
 <p><code>ppocr/utils/en_dict.txt</code> is a English dictionary with 96 characters</p>
 <p>The current multi-language model is still in the demo stage and will continue to optimize the model and add languages. <strong>You are very welcome to provide us with dictionaries and fonts in other languages</strong>,
-If you like, you can submit the dictionary file to <a href="../../ppocr/utils/dict">dict</a> and we will thank you in the Repo.</p>
+If you like, you can submit the dictionary file to <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/dict">dict</a> and we will thank you in the Repo.</p>
 <p>To customize the dict file, please modify the <code>character_dict_path</code> field in <code>configs/rec/rec_icdar15_train.yml</code> .</p>
 <ul>
 <li>Custom dictionary</li>
@@ -468,7 +558,7 @@ If you like, you can submit the dictionary file to <a href="../../ppocr/utils/di
 <h3 id="15-data-augmentation">1.5 Data Augmentation<a class="headerlink" href="#15-data-augmentation" title="Permanent link">&para;</a></h3>
 <p>PaddleOCR provides a variety of data augmentation methods. All the augmentation methods are enabled by default.</p>
 <p>The default perturbation methods are: cvtColor, blur, jitter, Gasuss noise, random crop, perspective, color reverse, TIA augmentation.</p>
-<p>Each disturbance method is selected with a 40% probability during the training process. For specific code implementation, please refer to: <a href="../../ppocr/data/imaug/rec_img_aug.py">rec_img_aug.py</a></p>
+<p>Each disturbance method is selected with a 40% probability during the training process. For specific code implementation, please refer to: <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/data/imaug/rec_img_aug.py">rec_img_aug.py</a></p>
 <p><a name="TRAINING"></a></p>
 <h2 id="2training">2.Training<a class="headerlink" href="#2training" title="Permanent link">&para;</a></h2>
 <p>PaddleOCR provides training scripts, evaluation scripts, and prediction scripts. In this section, the CRNN recognition model will be used as an example:</p>
@@ -498,7 +588,7 @@ python3 -m paddle.distributed.launch --gpus &#39;0,1,2,3&#39;  tools/train.py -c
 <li>Tip: You can use the <code>-c</code> parameter to select multiple model configurations under the <code>configs/rec/</code> path for training. The recognition algorithms supported at <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/dygraph/doc/doc_en/algorithm_overview.md">rec_algorithm</a>:</li>
 </ul>
 <p>For training Chinese data, it is recommended to use
-<a href="../../configs/rec/PP-OCRv3/ch_PP-OCRv3_rec_distillation.yml">ch_PP-OCRv3_rec_distillation.yml</a>. If you want to try the result of other algorithms on the Chinese data set, please refer to the following instructions to modify the configuration file:</p>
+<a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/configs/rec/PP-OCRv3/ch_PP-OCRv3_rec_distillation.yml">ch_PP-OCRv3_rec_distillation.yml</a>. If you want to try the result of other algorithms on the Chinese data set, please refer to the following instructions to modify the configuration file:</p>
 <p>Take <code>ch_PP-OCRv3_rec_distillation.yml</code> as an example:
 <div class="highlight"><pre><span></span><code>Global:
   ...
@@ -569,7 +659,7 @@ Eval:
 <p><strong>Note</strong>: The priority of <code>Global.checkpoints</code> is higher than that of <code>Global.pretrained_model</code>, that is, when two parameters are specified at the same time, the model specified by <code>Global.checkpoints</code> will be loaded first. If the model path specified by <code>Global.checkpoints</code> is wrong, the one specified by <code>Global.pretrained_model</code> will be loaded.</p>
 <p><a name="23-training-with-new-backbone"></a></p>
 <h3 id="23-training-with-new-backbone">2.3 Training with New Backbone<a class="headerlink" href="#23-training-with-new-backbone" title="Permanent link">&para;</a></h3>
-<p>The network part completes the construction of the network, and PaddleOCR divides the network into four parts, which are under <a href="../../ppocr/modeling">ppocr/modeling</a>. The data entering the network will pass through these four parts in sequence(transforms-&gt;backbones-&gt;
+<p>The network part completes the construction of the network, and PaddleOCR divides the network into four parts, which are under <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6//modeling">ppocr/modeling</a>. The data entering the network will pass through these four parts in sequence(transforms-&gt;backbones-&gt;
 necks-&gt;heads).</p>
 <div class="highlight"><pre><span></span><code>├── architectures <span class="c1"># Code for building network</span>
 ├── transforms    <span class="c1"># Image Transformation Module</span>
@@ -580,7 +670,7 @@ necks-&gt;heads).</p>
 <p>If the Backbone to be replaced has a corresponding implementation in PaddleOCR, you can directly modify the parameters in the <code>Backbone</code> part of the configuration yml file.</p>
 <p>However, if you want to use a new Backbone, an example of replacing the backbones is as follows:</p>
 <ol>
-<li>Create a new file under the <a href="../../ppocr/modeling/backbones">ppocr/modeling/backbones</a> folder, such as my_backbone.py.</li>
+<li>Create a new file under the <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/modeling/backbones">ppocr/modeling/backbones</a> folder, such as my_backbone.py.</li>
 <li>Add code in the my_backbone.py file, the sample code is as follows:</li>
 </ol>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">paddle</span>
@@ -600,14 +690,14 @@ necks-&gt;heads).</p>
         <span class="k">return</span> <span class="n">y</span>
 </code></pre></div>
 <ol>
-<li>Import the added module in the <a href="../../ppocr/modeling/backbones/__init__.py">ppocr/modeling/backbones/_<em>init_</em>.py</a> file.</li>
+<li>Import the added module in the <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/modeling/backbones/__init__.py">ppocr/modeling/backbones/_<em>init_</em>.py</a> file.</li>
 </ol>
 <p>After adding the four-part modules of the network, you only need to configure them in the configuration file to use, such as:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">Backbone</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyBackbone</span><span class="w"></span>
 <span class="w">    </span><span class="nt">args1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">args1</span><span class="w"></span>
 </code></pre></div>
-<p><strong>NOTE</strong>: More details about replace Backbone and other mudule can be found in <a href="add_new_algorithm_en.md">doc</a>.</p>
+<p><strong>NOTE</strong>: More details about replace Backbone and other mudule can be found in <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc_en/add_new_algorithm_en.md">doc</a>.</p>
 <p><a name="24-amp-training"></a></p>
 <h3 id="24-mixed-precision-training">2.4 Mixed Precision Training<a class="headerlink" href="#24-mixed-precision-training" title="Permanent link">&para;</a></h3>
 <p>If you want to speed up your training further, you can use <a href="https://www.paddlepaddle.org.cn/documentation/docs/zh/guides/01_paddle2.0_introduction/basic_concept/amp_cn.html">Auto Mixed Precision Training</a>, taking a single machine and a single gpu as an example, the commands are as follows:</p>
@@ -625,10 +715,10 @@ During multi-machine multi-gpu training, use the <span class="sb">`</span>--ips<
 python3 -m paddle.distributed.launch --ips<span class="o">=</span><span class="s2">&quot;xx.xx.xx.xx,xx.xx.xx.xx&quot;</span> --gpus <span class="s1">&#39;0,1,2,3&#39;</span> tools/train.py -c configs/rec/rec_icdar15_train.yml <span class="se">\</span>
      -o Global.pretrained_model<span class="o">=</span>./pretrain_models/rec_mv3_none_bilstm_ctc_v2.0_train
 </code></pre></div>
-<p><strong>Note:</strong> (1) When using multi-machine and multi-gpu training, you need to replace the ips value in the above command with the address of your machine, and the machines need to be able to ping each other. (2) Training needs to be launched separately on multiple machines. The command to view the ip address of the machine is <code>ifconfig</code>. (3) For more details about the distributed training speedup ratio, please refer to <a href="./distributed_training_en.md">Distributed Training Tutorial</a>.</p>
+<p><strong>Note:</strong> (1) When using multi-machine and multi-gpu training, you need to replace the ips value in the above command with the address of your machine, and the machines need to be able to ping each other. (2) Training needs to be launched separately on multiple machines. The command to view the ip address of the machine is <code>ifconfig</code>. (3) For more details about the distributed training speedup ratio, please refer to <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc_en/distributed_training_en.md">Distributed Training Tutorial</a>.</p>
 <p><a name="kd"></a></p>
 <h3 id="26-training-with-knowledge-distillation">2.6 Training with Knowledge Distillation<a class="headerlink" href="#26-training-with-knowledge-distillation" title="Permanent link">&para;</a></h3>
-<p>Knowledge distillation is supported in PaddleOCR for text recognition training process. For more details, please refer to <a href="./knowledge_distillation_en.md">doc</a>.</p>
+<p>Knowledge distillation is supported in PaddleOCR for text recognition training process. For more details, please refer to <a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc_en/knowledge_distillation_en.md">doc</a>.</p>
 <p><a name="Multi_language"></a></p>
 <h3 id="27-multi-language-training">2.7 Multi-language Training<a class="headerlink" href="#27-multi-language-training" title="Permanent link">&para;</a></h3>
 <p>Currently, the multi-language algorithms supported by PaddleOCR are:</p>
@@ -893,7 +983,7 @@ python3 tools/export_model.py -c configs/rec/PP-OCRv3/en_PP-OCRv3_rec.yml -o Glo
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../../dataset_preparation/paddleocr_dataset_format/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Paddleocr format" rel="prev">
+        <a href="../../dataset_preparation/easyocr_dataset_format/" class="md-footer__link md-footer__link--prev" aria-label="Previous: EasyOCR format" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -902,20 +992,20 @@ python3 tools/export_model.py -c configs/rec/PP-OCRv3/en_PP-OCRv3_rec.yml -o Glo
               <span class="md-footer__direction">
                 Previous
               </span>
-              Paddleocr format
+              EasyOCR format
             </div>
           </div>
         </a>
       
       
         
-        <a href="../../structured_data/" class="md-footer__link md-footer__link--next" aria-label="Next: Structured data" rel="next">
+        <a href="../recognition_easyocr/" class="md-footer__link md-footer__link--next" aria-label="Next: Recognition EasyOCR" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Structured data
+              Recognition EasyOCR
             </div>
           </div>
           <div class="md-footer__button md-icon">

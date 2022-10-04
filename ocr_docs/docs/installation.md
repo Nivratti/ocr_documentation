@@ -1,6 +1,6 @@
 # Installation
 
-## A) Server requirements:
+## A) Server requirements for GPU version (Recommended):
 
 ### Hardware:
 1. CPU cores(4 plus)
@@ -25,15 +25,39 @@
 
 ## Installation:
 
-1. From pip package:
-   Unzip OCR zipped file, goto main folder, and run `pip install -r requirements.txt`
+### 1. Docker:
 
-2. Docker:
+Command to build:
 
-    Command to build:
+```sudo docker build . -t ocr_english_optimized:latest```
 
-    ```sudo docker build . -t ocr:latest```
+Run : 
 
-    Run : 
+```sudo docker run -p 5000:5000 --gpus all --init -it  ocr_english_optimized```
 
-    ```sudo docker run -p 5000:5000 --gpus all --init -it ocr```
+
+### 2. Docker compose:
+
+You can use it for **development purpose** also, as per written config code, models volume will be mounted and no need to rebuild docker compose after changing code. You can modify code and execute modified python file.
+
+Command to build:
+
+```sudo docker compose build .```
+
+Run : 
+
+```sudo docker compose run -p 5000:5000 ocr_docker_compose  bash```
+
+
+## B) CPU only Inference (GPU will be much faster than this):
+
+Considering development system scenario, as always GPU not available, so to test and modify solution in CPU only system you can build CPU version of docker.
+
+Command to build:
+
+```sudo docker build -f "Dockerfile-CPU" . -t ocr_english_optimized_cpu:latest```
+
+Run : 
+
+```sudo docker run -p 5000:5000 --init -it  ocr_english_optimized_cpu```
+
